@@ -79,8 +79,12 @@ static void start_spi_transfer(uint8_t pin, uint8_t const *txbuf, int length) {
 
 /* The bytes need to be swapped on output, since the driver transmits LSB first */
 static uint8_t CONVERT_AIN0[4] = { 0x81, 0x8B, 0xFF, 0xFF };
-static uint8_t CONVERT_AIN2[4] = { 0xD1, 0x8B, 0xFF, 0xFF };
+static uint8_t CONVERT_AIN2[4] = { 0xB1, 0x8B, 0xFF, 0xFF }; // Should be 0xB1. 0xE1 is single ended
 static uint8_t CONVERT_TEMP[4] = { 0x81, 0x9B, 0xFF, 0xFF };
+
+void spi_single_ended(bool cmd) {
+  CONVERT_AIN2[0] = cmd ? 0xE1 : 0xB1;
+}
 
 enum adc_state_t {adc_init, adc_init_tx,
            adc_ain0_wait, adc_ain0_tx,

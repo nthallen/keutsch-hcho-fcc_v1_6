@@ -62,6 +62,8 @@ void poll_commands(void) {
     switch (cmd) {
       case 32: spi_enable(true); break;
       case 33: spi_enable(false); break;
+      case 34: spi_single_ended(true); break;
+      case 35: spi_single_ended(false); break;
       default: break;
     }
   }

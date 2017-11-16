@@ -199,10 +199,10 @@ int subbus_read( uint16_t addr, uint16_t *rv ) {
     case SUBBUS_INTA_ADDR:
       return 0;
     case SUBBUS_BDID_ADDR:
-      *rv = SUBBUS_BOARD_ID;
+      *rv = SUBBUS_BUILD_NUM;
       return 1;
     case SUBBUS_BDID_ADDR+1:
-      *rv = SUBBUS_BUILD_NUM;
+      *rv = SUBBUS_BOARD_ID;
       return 1;
     case SUBBUS_FAIL_ADDR:
       *rv = fail_reg;
