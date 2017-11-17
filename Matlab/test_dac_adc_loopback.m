@@ -1,5 +1,5 @@
-function test_dac_adc_loopback(s, N, dac_channel, adc_channel, single_ended)
-  % test_dac_adc_loopback(s, N, dac_channel, adc_channel, single_ended)
+function test_dac_adc_loopback(s, N, dac_channel, adc_channel, single_ended, positive)
+  % test_dac_adc_loopback(s, N, dac_channel, adc_channel, single_ended, positive)
 
   %N = 25;
   %dac_channel = 0;
@@ -9,7 +9,13 @@ function test_dac_adc_loopback(s, N, dac_channel, adc_channel, single_ended)
     adc_mode = 'Differential';
   else
     write_subbus(s, 24, 34); % Switch to single-ended 
-    adc_mode = 'Single-ended';
+    if nargin < 6 || positive > 0
+      write_subbus(s, 24, 36);
+      adc_mode = 'Single-ended';
+    else
+      write_subbus(s, 24, 37);
+      adc_mode = 'Single-ended negative lead';
+    end
   end
   readback = zeros(N,1);
   readback2 = zeros(N,1);

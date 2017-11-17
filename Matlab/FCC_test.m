@@ -19,3 +19,18 @@ test_dac_adc_loopback(s, 25, 0, 1, 0);
 %%
 % write_subbus(s, 24, 34); % Switch to single-ended 
 test_dac_adc_loopback(s, 25, 0, 1, 1);
+%%
+% write_subbus(s, 24, 34); % Switch to single-ended negative lead
+test_dac_adc_loopback(s, 25, 0, 1, 1, 0);
+
+
+%% Test Commands
+%
+% Channel 0-3
+% Mode 0: both off
+%      1: Closed on
+%      2: Open on
+%      3: Open and closed on, but only for channel 3
+channel = 4;
+mode = 0;
+write_subbus(s, 24, channel*4+mode);

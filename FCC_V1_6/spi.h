@@ -14,5 +14,6 @@ void spi_init(void);
 void spi_enable(bool);
 void poll_spi(void);
 void spi_single_ended(bool);
+void spi_measure_pos(bool cmd);
 
 #endif

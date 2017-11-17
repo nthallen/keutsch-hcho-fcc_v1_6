@@ -78,12 +78,27 @@ static void start_spi_transfer(uint8_t pin, uint8_t const *txbuf, int length) {
 }
 
 /* The bytes need to be swapped on output, since the driver transmits LSB first */
-static uint8_t CONVERT_AIN0[4] = { 0x81, 0x8B, 0xFF, 0xFF };
+static uint8_t CONVERT_AIN0[4] = { 0x81, 0x8B, 0xFF, 0xFF }; // Should be 0x81. 0xC1 for single ended
 static uint8_t CONVERT_AIN2[4] = { 0xB1, 0x8B, 0xFF, 0xFF }; // Should be 0xB1. 0xE1 is single ended
 static uint8_t CONVERT_TEMP[4] = { 0x81, 0x9B, 0xFF, 0xFF };
+static bool measure_single_ended = false;
+static bool measure_pos_when_single = true;
+
+static void set_convert_codes(void) {
+  CONVERT_AIN0[0] = measure_single_ended ?
+    (measure_pos_when_single ? 0xC1 : 0xD1) : 0x81;
+  CONVERT_AIN2[0] = measure_single_ended ?
+    (measure_pos_when_single ? 0xE1 : 0xF1) : 0xB1;
+}
 
 void spi_single_ended(bool cmd) {
-  CONVERT_AIN2[0] = cmd ? 0xE1 : 0xB1;
+  measure_single_ended = cmd;
+  set_convert_codes();
+}
+
+void spi_measure_pos(bool cmd) {
+  measure_pos_when_single = cmd;
+  set_convert_codes();
 }
 
 enum adc_state_t {adc_init, adc_init_tx,
