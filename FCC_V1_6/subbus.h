@@ -4,8 +4,16 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#define BOARD_REV                   "V10:178:HCHO FCC Rev A V1.1"
-#define SUBBUS_BOARD_ID             10
+#define FCC2
+
+#ifdef FCC1
+  #define BOARD_REV                   "V10:178:HCHO FCC Rev A V1.1"
+  #define SUBBUS_BOARD_ID             10
+#endif
+#ifdef FCC2
+  #define BOARD_REV                   "V11:178:HCHO FCC Rev A V1.1"
+  #define SUBBUS_BOARD_ID             11
+#endif
 #define SUBBUS_BUILD_NUM            1
 #define SUBBUS_FAIL_RESERVED        0xF000
 #define SUBBUS_INTA_ADDR            0x0001
