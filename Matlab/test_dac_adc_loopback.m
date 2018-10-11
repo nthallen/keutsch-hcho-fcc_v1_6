@@ -34,7 +34,7 @@ function test_dac_adc_loopback(s, N, dac_channel, adc_channel, single_ended, pos
     pause(0.2);
     adc2(i) = read_subbus(s, 16+adc_channel);
   end
-  if any(setpoints ~= readback) OR any(setpoints ~= readback2)
+  if any(setpoints ~= readback) || any(setpoints ~= readback2)
     error('Not all setpoints read back correctly');
   end
   adcS = adc - (adc>=32768)*65536;

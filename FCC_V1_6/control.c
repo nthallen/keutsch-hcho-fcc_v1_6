@@ -110,6 +110,7 @@ static void read_multi(uint8_t *cmd) {
       }
       end = addr;
     } else if (*cmd == '|') {
+#if USE_SUBBUS
       if ( subbus_read( addr, &result ) ) {
         uart_send_char('M');
         hex_out(result);
@@ -118,6 +119,11 @@ static void read_multi(uint8_t *cmd) {
         uart_send_char('0');
         result = 0;
       }
+#else
+      uart_send_char('m');
+      uart_send_char('0');
+      result = 0;
+#endif
       ++cmd;
       if ( read_hex( &cmd, &rep ) ) {
         SendErrorMsg("3");
@@ -147,6 +153,7 @@ static void read_multi(uint8_t *cmd) {
         SendErrorMsg("3");
         return;
       }
+#if USE_SUBBUS
       if ( subbus_read( addr, &result ) ) {
         uart_send_char('M');
         hex_out(result);
@@ -154,6 +161,10 @@ static void read_multi(uint8_t *cmd) {
         uart_send_char('m');
         uart_send_char('0');
       }
+#else
+      uart_send_char('m');
+      uart_send_char('0');
+#endif
     }
     if (*cmd == '\n' || *cmd == '\r') {
       SendMsg("");
@@ -210,15 +221,26 @@ static void parse_command(uint8_t *cmd) {
   }
   switch(cmd_code) {
     case 'R':                         // READ with ACK 'R'
+#if USE_SUBBUS
       expack = subbus_read(arg1, &rv);
+#else
+      rv = 0;
+      expack = 0;
+#endif
       SendCodeVal(expack ? 'R' : 'r', rv);
       break;
     case 'W':                         // WRITE with ACK 'W'
+#if USE_SUBBUS
       expack = subbus_write(arg1, arg2);
+#else
+      expack = 0;
+#endif
       SendMsg(expack ? "W" : "w");
       break;
     case 'F':
+#if USE_SUBBUS
       set_fail(arg1);
+#endif
       SendMsg( "F" );
       break;
     case 'f':
@@ -226,6 +248,8 @@ static void parse_command(uint8_t *cmd) {
       arg1 = XGpio_DiscreteRead(&Subbus_Fail,2);
 #elif defined(SUBBUS_FAIL_ADDR)
       subbus_read(SUBBUS_FAIL_ADDR, &arg1);
+#else
+      arg1 = 0;
 #endif
       SendCodeVal('f', arg1);
       break;
@@ -235,9 +259,11 @@ static void parse_command(uint8_t *cmd) {
       SendCode(cmd_code);
       break;
     case 'B':
+#if USE_SUBBUS
       subbus_reset();
 #if SUBBUS_INTERRUPTS
       init_interrupts();
+#endif
 #endif
       SendMsg("B");
       break;
@@ -249,6 +275,8 @@ static void parse_command(uint8_t *cmd) {
       arg1 = XGpio_DiscreteRead(&Subbus_Switches,1);
 #elif defined(SUBBUS_SWITCHES_ADDR)
       subbus_read(SUBBUS_SWITCHES_ADDR, &arg1);
+#else
+      arg1 = 0;
 #endif
       SendCodeVal('D', arg1);
       break;

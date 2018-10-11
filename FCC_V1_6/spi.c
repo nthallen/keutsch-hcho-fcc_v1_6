@@ -15,7 +15,7 @@ static volatile bool SPI_ADC_txfr_complete = true;
 static struct io_descriptor *SPI_ADC_io;
 static bool spi_enabled = SPI_ENABLE_DEFAULT;
 
-void spi_enable(bool value) {
+static void spi_enable(bool value) {
   spi_enabled = value;
 }
 
@@ -77,7 +77,11 @@ static void start_spi_transfer(uint8_t pin, uint8_t const *txbuf, int length) {
   spi_m_async_transfer(&SPI_ADC, txbuf, spi_read_data, length);
 }
 
-/* The bytes need to be swapped on output, since the driver transmits LSB first */
+/* The bytes need to be swapped on output, since the driver transmits LSB first
+ * Not clear what the previous sentence means, as the bytes below are in the
+ * order required by the device. Perhaps it is just that the data needs to
+ * appear as bytes, not words.
+ */
 static uint8_t CONVERT_AIN0[4] = { 0x81, 0x8B, 0xFF, 0xFF }; // Should be 0x81. 0xC1 for single ended
 static uint8_t CONVERT_AIN2[4] = { 0xB1, 0x8B, 0xFF, 0xFF }; // Should be 0xB1. 0xE1 is single ended
 static uint8_t CONVERT_TEMP[4] = { 0x81, 0x9B, 0xFF, 0xFF };
@@ -96,6 +100,11 @@ void spi_single_ended(bool cmd) {
   set_convert_codes();
 }
 
+/**
+ * In single-ended mode, determines whether to read the positive or
+ * negative inputs. If cmd is true, the positive inputs, AIN0 and AIN2
+ * are read. If false, AIN1 and AIN3 are read.
+ */
 void spi_measure_pos(bool cmd) {
   measure_pos_when_single = cmd;
   set_convert_codes();
@@ -204,7 +213,7 @@ typedef struct {
   uint16_t current;
 } dac_poll_def;
 
-static dac_poll_def dac_u5 = {SPI_DAC_U5_ENABLED, dac_init, DACSYNC, {0x14, 0x15, 0x16, 0x17}, 0};
+static dac_poll_def dac_u5 = {SPI_DAC_U5_ENABLED, dac_idle, DACSYNC, {0x14, 0x15, 0x16, 0x17}, 0};
 static uint8_t DACREFENABLE[3] = {0x38, 0x00, 0x01};
 static uint8_t DACupdate[3];
 
@@ -274,7 +283,7 @@ void poll_spi(void) {
   }
 }
 
-void spi_init(void) {
+static void spi_init(void) {
   SPI_ADC_CLOCK_init();
   spi_m_async_init(&SPI_ADC, SERCOM0);
   SPI_ADC_PORT_init();
@@ -285,4 +294,24 @@ void spi_init(void) {
   subbus_cache_config(dac_u5.addr[1], true);
   subbus_cache_config(dac_u5.addr[2], true);
   subbus_cache_config(dac_u5.addr[3], true);
+}
+
+/**
+ * This file should include a memory map. The current one is In evernote.
+ * 0x10-0x13 R: ADC Flow values
+ * 0x14-0x17 RW: DAC Flow Setpoints
+ * 0x18 R: CmdStatus W: Command
+ * 0x19 R: ADC_U2_T
+ * 0x1A R: ADC_U3_T
+ * 0x1B R: TS0_Raw_LSW
+ * 0x1C R: TS0_Raw_MSW
+ * 0x1D R: TS0_Count
+ */
+subbus_driver_t sb_spi = {
+  0x10, 0x1D, // address range
+  &spi_read,
+  &spi_write,
+  &spi_reset,
+  &spi_poll,
+  false // initialized flag
 }
