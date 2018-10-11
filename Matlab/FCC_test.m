@@ -9,7 +9,7 @@ set(s,'BaudRate',115200);
 %%
 % First check that the board is an FCC
 BdID = read_subbus(s, 3);
-if BdID ~= 10 && BdID ~= 11
+if BdID ~= 10 && BdID ~= 11 && BdID ~= 13
   error('Expected BdID 10 or 11, reported %d', BdID);
 end
 Build = read_subbus(s,2);
