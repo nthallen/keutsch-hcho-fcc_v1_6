@@ -204,7 +204,7 @@ typedef struct {
   uint16_t current;
 } dac_poll_def;
 
-static dac_poll_def dac_u5 = {SPI_DAC_U5_ENABLED, dac_init, DACSYNC, {0x14, 0x15, 0x16, 0x17}, 0};
+static dac_poll_def dac_u5 = {SPI_DAC_U5_ENABLED, dac_idle, DACSYNC, {0x14, 0x15, 0x16, 0x17}, 0};
 static uint8_t DACREFENABLE[3] = {0x38, 0x00, 0x01};
 static uint8_t DACupdate[3];
 
