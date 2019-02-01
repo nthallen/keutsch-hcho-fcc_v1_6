@@ -4,16 +4,17 @@ function test_dac_adc_loopback(s, N, dac_channel, adc_channel, single_ended, pos
   %N = 25;
   %dac_channel = 0;
   %adc_channel = 1;
+  cmd_addr = 26; % 26 is for Plant FCC, 24 for HCHO FCC
   if single_ended == 0
-    write_subbus(s, 24, 35); % Switch to differential
+    write_subbus(s, cmd_addr, 35); % Switch to differential
     adc_mode = 'Differential';
   else
-    write_subbus(s, 24, 34); % Switch to single-ended 
+    write_subbus(s, cmd_addr, 34); % Switch to single-ended 
     if nargin < 6 || positive > 0
-      write_subbus(s, 24, 36);
+      write_subbus(s, cmd_addr, 36);
       adc_mode = 'Single-ended';
     else
-      write_subbus(s, 24, 37);
+      write_subbus(s, cmd_addr, 37);
       adc_mode = 'Single-ended negative lead';
     end
   end
